@@ -1,0 +1,26 @@
+{
+  "name": "ahst-cli",
+  "version": "1.0.0",
+  "description": "Command line interface for Ammonite Hosting",
+  "main": "ahst.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amm0nite/ahst-cli.git"
+  },
+  "author": "@amm0nite",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/amm0nite/ahst-cli/issues"
+  },
+  "homepage": "https://github.com/amm0nite/ahst-cli#readme",
+  "dependencies": {
+    "commander": "^2.9.0",
+    "request": "^2.75.0"
+  },
+  "bin": {
+    "ahst": "./ahst.js"
+  }
+}

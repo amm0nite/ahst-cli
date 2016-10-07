@@ -1,15 +1,27 @@
+#!/usr/bin/env node
 
 var program = require('commander');
-var package = require('./package.json');
+var info = require('./package.json');
+var commands = require('./commands.js');
 
-program
-    .version(package.name + " " + package.version)
-    .command('run <filename>')
+var action = 'none';
+var params = {};
+
+program.version(info.name + " " + info.version);
+
+program.command('run <filename>')
     .description('Run script')
     .option("-d, --detach", "Do not wait for output")
     .action(function(filename, options) {
-        console.log(filename);
-        console.log(options.detach);
+        action = 'run';
+        params.filename = filename;
+        params.detach = options.detach;
     });
 
 program.parse(process.argv);
+
+if (action == 'none') {
+    program.help();
+}
+
+commands[action](params);

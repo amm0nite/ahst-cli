@@ -24,4 +24,10 @@ if (action == 'none') {
     program.help();
 }
 
-commands[action](params);
+try {
+    commands[action](params);
+}
+catch (e) {
+    console.log('Unexpected error:');
+    console.log(e);
+}

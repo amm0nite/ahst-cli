@@ -1,19 +1,22 @@
 
 var fs = require('fs');
-var prompt = require('prompt');
+var inquirer = require('inquirer');
+var api = require('./api.js');
 
 function askCredentials(next) {
-    prompt.message = '';
-    prompt.start();
+    var questions = [
+        { type: 'input', name: 'username', message: 'Username' },
+        { type: 'password', name: 'password', message: 'Password' }
+    ];
 
-    prompt.get(['username', 'password'], function (err, result) {
-        if (err) {
-            return next({ message: "Failed to prompt for credentials" });
-        }
-
-        var credentials = { type:'prompt', username:result.username, password:result.password };
-        next(null, credentials);
-    });
+    inquirer.prompt(questions)
+        .then(function(answers) {
+            var credentials = { type:'prompt', username:answers.username, password:answers.password };
+            next(null, credentials);
+        })
+        .catch(function(err) { 
+            next(err);
+        });
 }
 
 function getCredentials(next) {
@@ -36,14 +39,16 @@ function getCredentials(next) {
     });
 }
 
-function run(params) {
+function run(params, next) {
     getCredentials(function(err, creds) {
-        if (err) {
-            console.log(err);
-            return;
-        }
+        if (err) return next(err);
 
-        console.log(creds);
+        api.setCredentials(creds);
+        api.createJob('print("Hello world");', function(err, id) {
+            if (err) return next(err);
+
+            console.log(id);
+        });
     });
 }
 

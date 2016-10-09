@@ -26,10 +26,26 @@ function authenticate(next) {
     });
 }
 
-function postJob(code, next) {
+function postJob(name, code, next) {
     authenticate(function(err, token) {
         if (err) return next(err);
-        console.log(token);
+        
+        var job = {
+            name: name,
+            code: code,
+            launch: true
+        };
+
+        request({
+            baseUrl: __baseUrl,
+            headers: { 'Authorization': 'Bearer ' + token },
+            uri: '/job',
+            method: 'POST',
+            json: job
+        }, function (err, res) {
+            if (err) return next(err);
+            console.log(res.body);
+        });
     });
 }
 

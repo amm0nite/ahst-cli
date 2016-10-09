@@ -26,30 +26,48 @@ function authenticate(next) {
     });
 }
 
-function postJob(name, code, next) {
+function action(uri, data, next) {
     authenticate(function(err, token) {
         if (err) return next(err);
-        
-        var job = {
-            name: name,
-            code: code,
-            launch: true
-        };
 
-        request({
+        var options = {
             baseUrl: __baseUrl,
             headers: { 'Authorization': 'Bearer ' + token },
-            uri: '/job',
-            method: 'POST',
-            json: job
-        }, function (err, res) {
+            uri: uri,
+            method: 'GET'
+        };
+        if (data) {
+            options.method = 'POST';
+            options.json = data;
+        }
+        request(options, function(err, res) {
             if (err) return next(err);
-            console.log(res.body);
+        
+            if (res.statusCode != 200) {
+                return next(res.body);
+            }
+
+            next(null, res.body);
         });
     });
 }
 
+function postJob(name, code, next) {
+    var job = {
+        name: name,
+        code: code,
+        launch: true
+    };
+    action('/job', job, next);
+}
+
+function postKey(next) {
+    var key = {};
+    action('/key', key, next);
+}
+
 module.exports = {
     'setCredentials': setCredentials,
-    'createJob': postJob
+    'createJob': postJob,
+    'createKey': postKey,
 };

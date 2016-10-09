@@ -18,6 +18,12 @@ program.command('run <filename>')
         params.detach = options.detach;
     });
 
+program.command('generate')
+    .description('Create automation credentials file')
+    .action(function() {
+        action = 'generate';
+    });
+
 program.parse(process.argv);
 
 if (action == 'none') {

@@ -3,7 +3,7 @@ var fs = require('fs');
 var inquirer = require('inquirer');
 var api = require('./api.js');
 
-var __path = '~/.ahst/credentials';
+var __path = '~/.ahst/autokey';
 
 function askCredentials(next) {
     var questions = [
@@ -25,7 +25,7 @@ function getCredentials(next) {
     fs.readFile(__path, {}, (err, data) => {
         var ask = false;
         if (err && err.code === "ENOENT") {
-            console.error("No credentials file " + __path);
+            console.error("No automation key file " + __path);
             return askCredentials(next);
         }
 

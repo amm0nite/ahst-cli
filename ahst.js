@@ -19,7 +19,7 @@ program.command('run <filename>')
     });
 
 program.command('generate')
-    .description('Create automation credentials file')
+    .description('Create automation key file')
     .action(function() {
         action = 'generate';
     });

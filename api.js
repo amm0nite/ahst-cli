@@ -2,7 +2,7 @@
 var request = require('request');
 
 var __baseUrl = 'https://api.ahst.fr';
-var __credentials = null;
+var __credentials = {};
 
 function setCredentials(credentials) {
     __credentials = credentials;
@@ -14,20 +14,17 @@ function authenticate(next) {
         uri: '/access',
         method: 'POST',
         json: __credentials
-    }, function(err, res) {
+    }, function (err, res) {
         if (err) return next(err);
-        
-        if (res.statusCode != 200) {
-            return next(res.body);
-        }
-        
+        if (res.statusCode != 200) return next(res.body);
+
         var data = res.body;
         next(null, data.token);
     });
 }
 
 function action(uri, data, next) {
-    authenticate(function(err, token) {
+    authenticate(function (err, token) {
         if (err) return next(err);
 
         var options = {
@@ -36,16 +33,15 @@ function action(uri, data, next) {
             uri: uri,
             method: 'GET'
         };
+
         if (data) {
             options.method = 'POST';
             options.json = data;
         }
-        request(options, function(err, res) {
+
+        request(options, function (err, res) {
             if (err) return next(err);
-        
-            if (res.statusCode != 200) {
-                return next(res.body);
-            }
+            if (res.statusCode != 200) return next(res.body);
 
             next(null, res.body);
         });

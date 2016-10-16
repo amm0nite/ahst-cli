@@ -1,9 +1,11 @@
 
+var os = require('os');
 var fs = require('fs');
 var inquirer = require('inquirer');
 var api = require('./api.js');
 
-var __path = '~/.ahst/robotKey';
+var _dir = os.homedir() + '/.ahst';
+var _path = _dir + '/robotKey';
 
 function askCredentials(next) {
     var questions = [
@@ -23,14 +25,14 @@ function askCredentials(next) {
 }
 
 function getCredentials(next) {
-    fs.readFile(__path, {}, (err, content) => {
+    fs.readFile(_path, {}, (err, content) => {
         if (err && err.code === "ENOENT") {
-            console.error("No automation key file " + __path);
+            console.error("No automation key file " + _path);
             return askCredentials(next);
         }
 
         if (err) {
-            console.log("Failed to read " + __path);
+            console.log("Failed to read " + _path);
             return askCredentials(next);
         }
 
@@ -62,17 +64,36 @@ function generate(params, next) {
     getCredentials(function (err, creds) {
         if (err) return next(err);
 
-        api.createKey(function (err, key) {
+        api.createKey(function (err, result) {
             if (err) return next(err);
 
-            var data = { username: creds.username, key: key };
-            fs.writeFile(__path, JSON.stringify(data), { mode: 0o600 }, function (err) {
+            var data = { username: creds.username, key: result.key };
+
+            checkPath(function(err) {
                 if (err) return next(err);
 
-                console.log('Automation key saved to ' + __path);
-                next(null);
+                fs.writeFile(_path, JSON.stringify(data), { mode: 0o600 }, function (err) {
+                    if (err) return next(err);
+
+                    console.log('Automation key saved to ' + _path);
+                    next(null);
+                });
             });
         });
+    });
+}
+
+function checkPath(next) {
+    fs.mkdir(_dir, 0o700, function(err) {
+        if (err && err.code === "EEXIST") {
+            return next(null);
+        }
+
+        if (err) {
+            return next(err);
+        }
+
+        return next(null);
     });
 }
 

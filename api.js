@@ -43,7 +43,12 @@ function action(uri, data, next) {
             if (err) return next(err);
             if (res.statusCode != 200) return next(res.body);
 
-            next(null, res.body);
+            var result = res.body;
+            if (!data) {
+                result = JSON.parse(res.body);
+            }
+
+            next(null, result);
         });
     });
 }
@@ -58,8 +63,7 @@ function postJob(name, code, next) {
 }
 
 function postKey(next) {
-    var key = {};
-    action('/key', key, next);
+    action('/robotKey', null, next);
 }
 
 module.exports = {

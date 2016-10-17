@@ -24,6 +24,12 @@ program.command('generate')
         action = 'generate';
     });
 
+program.command('forget')
+    .description('Delete automation key file')
+    .action(function() {
+        action = 'forget';
+    });
+
 program.parse(process.argv);
 
 if (action == 'none') {

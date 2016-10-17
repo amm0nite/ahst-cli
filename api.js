@@ -1,24 +1,28 @@
 
 var request = require('request');
+var config = require('./config.js');
 
-var __baseUrl = 'https://api.ahst.fr';
-var __credentials = {};
+var _credentials = {};
 
 function setCredentials(credentials) {
-    __credentials = credentials;
+    _credentials = credentials;
 }
 
 function authenticate(next) {
     request({
-        baseUrl: __baseUrl,
+        baseUrl: config.baseUrl,
         uri: '/access',
         method: 'POST',
-        json: __credentials
+        json: _credentials
     }, function (err, res) {
         if (err) return next(err);
-        if (res.statusCode != 200) return next(res.body);
 
         var data = res.body;
+        if (res.statusCode != 200) {
+            data.code = res.statusCode;
+            return next(data);
+        }
+        
         next(null, data.token);
     });
 }
@@ -28,7 +32,7 @@ function action(uri, data, next) {
         if (err) return next(err);
 
         var options = {
-            baseUrl: __baseUrl,
+            baseUrl: config.baseUrl,
             headers: { 'Authorization': 'Bearer ' + token },
             uri: uri,
             method: 'GET'

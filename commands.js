@@ -1,11 +1,8 @@
 
-var os = require('os');
 var fs = require('fs');
 var inquirer = require('inquirer');
 var api = require('./api.js');
-
-var _dir = os.homedir() + '/.ahst';
-var _path = _dir + '/robotKey';
+var config = require('./config.js');
 
 function askCredentials(next) {
     var questions = [
@@ -25,14 +22,14 @@ function askCredentials(next) {
 }
 
 function getCredentials(next) {
-    fs.readFile(_path, {}, (err, content) => {
+    fs.readFile(config.keyFile, 'utf8', (err, content) => {
         if (err && err.code === "ENOENT") {
-            console.error("No automation key file " + _path);
+            console.error("No automation key file " + config.keyFile);
             return askCredentials(next);
         }
 
         if (err) {
-            console.log("Failed to read " + _path);
+            console.log("Failed to read " + config.keyFile);
             return askCredentials(next);
         }
 
@@ -47,7 +44,7 @@ function run(params, next) {
     getCredentials(function (err) {
         if (err) return next(err);
 
-        fs.readFile(params.filename, function (err, code) {
+        fs.readFile(params.filename, 'utf8', function (err, code) {
             if (err) return next(err);
 
             api.createJob(params.filename, code, function (err, job) {
@@ -72,10 +69,10 @@ function generate(params, next) {
             checkPath(function(err) {
                 if (err) return next(err);
 
-                fs.writeFile(_path, JSON.stringify(data), { mode: 0o600 }, function (err) {
+                fs.writeFile(config.keyFile, JSON.stringify(data), { mode: 0o600 }, function (err) {
                     if (err) return next(err);
 
-                    console.log('Automation key saved to ' + _path);
+                    console.log('Automation key saved to ' + config.keyFile);
                     next(null);
                 });
             });
@@ -84,7 +81,7 @@ function generate(params, next) {
 }
 
 function checkPath(next) {
-    fs.mkdir(_dir, 0o700, function(err) {
+    fs.mkdir(config.dataDir, 0o700, function(err) {
         if (err && err.code === "EEXIST") {
             return next(null);
         }
@@ -97,7 +94,25 @@ function checkPath(next) {
     });
 }
 
+function forget(params, next) {
+    checkPath(function() {
+        fs.unlink(config.keyFile, function(err) {
+            if (err && err.code === "ENOENT") {
+                return next(null);
+            }
+        
+            if (err) {
+                return next(err);
+            }
+
+            next(null);
+        });
+    });
+
+}
+
 module.exports = {
     'run': run,
-    'generate': generate
+    'generate': generate,
+    'forget': forget,
 };

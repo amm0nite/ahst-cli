@@ -3,12 +3,17 @@ var request = require('request');
 var config = require('./config.js');
 
 var _credentials = {};
+var _token = '';
 
 function setCredentials(credentials) {
     _credentials = credentials;
 }
 
-function authenticate(next) {
+function setToken(token) {
+    _token = token;
+}
+
+function getToken(next) {
     request({
         baseUrl: config.baseUrl,
         uri: '/access',
@@ -28,36 +33,32 @@ function authenticate(next) {
 }
 
 function action(uri, data, next) {
-    authenticate(function (err, token) {
+    var options = {
+        baseUrl: config.baseUrl,
+        headers: { 'Authorization': 'Bearer ' + _token },
+        uri: uri,
+        method: 'GET'
+    };
+
+    if (data) {
+        options.method = 'POST';
+        options.json = data;
+    }
+
+    request(options, function (err, res) {
         if (err) return next(err);
+        if (res.statusCode != 200) return next(res.body);
 
-        var options = {
-            baseUrl: config.baseUrl,
-            headers: { 'Authorization': 'Bearer ' + token },
-            uri: uri,
-            method: 'GET'
-        };
-
-        if (data) {
-            options.method = 'POST';
-            options.json = data;
+        var result = res.body;
+        if (!data) {
+            result = JSON.parse(res.body);
         }
 
-        request(options, function (err, res) {
-            if (err) return next(err);
-            if (res.statusCode != 200) return next(res.body);
-
-            var result = res.body;
-            if (!data) {
-                result = JSON.parse(res.body);
-            }
-
-            next(null, result);
-        });
+        next(null, result);
     });
 }
 
-function postJob(name, code, next) {
+function createJob(name, code, next) {
     var job = {
         name: name,
         code: code,
@@ -66,12 +67,12 @@ function postJob(name, code, next) {
     action('/job', job, next);
 }
 
-function postKey(next) {
+function createKey(next) {
     action('/robotKey', null, next);
 }
 
 module.exports = {
     'setCredentials': setCredentials,
-    'createJob': postJob,
-    'createKey': postKey,
+    'createJob': createJob,
+    'createKey': createKey,
 };

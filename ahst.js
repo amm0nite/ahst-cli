@@ -2,7 +2,7 @@
 
 var program = require('commander');
 var info = require('./package.json');
-var commands = require('./commands.js');
+var main = require('./main.js');
 
 var action = 'none';
 var params = {};
@@ -36,9 +36,5 @@ if (action == 'none') {
     program.help();
 }
 
-commands[action](params, function (err) {
-    if (err) {
-        console.log('Error:');
-        console.log(err);
-    }
-});
+main(action, params);
+

@@ -2,23 +2,19 @@
 var request = require('request');
 var config = require('./config.js');
 
-var _credentials = {};
-var _token = '';
 
-function setCredentials(credentials) {
-    _credentials = credentials;
-}
+var _token = '';
 
 function setToken(token) {
     _token = token;
 }
 
-function getToken(next) {
+function createToken(credentials, next) {
     request({
         baseUrl: config.baseUrl,
         uri: '/access',
         method: 'POST',
-        json: _credentials
+        json: credentials
     }, function (err, res) {
         if (err) return next(err);
 
@@ -71,8 +67,19 @@ function createKey(next) {
     action('/robotKey', null, next);
 }
 
+function fetchUser(next) {
+    action('/user', null, next);
+}
+
+function fetchToken(next) {
+    throw "todo";
+}
+
 module.exports = {
-    'setCredentials': setCredentials,
+    'setToken': setToken,
+    'createToken': createToken,
     'createJob': createJob,
     'createKey': createKey,
+    'fetchUser': fetchUser,
+    'fetchToken': fetchToken,
 };

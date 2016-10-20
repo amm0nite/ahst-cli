@@ -1,5 +1,9 @@
 
+var fs = require('fs');
+var inquirer = require('inquirer');
+
 var config = require('./config.js');
+var api = require('./api.js');
 
 function authenticate(next) {
     getStoredToken(next);
@@ -7,19 +11,23 @@ function authenticate(next) {
 
 function getStoredToken(next) {
     fs.readFile(config.tokenFile, 'utf8', (err, content) => {
-        try {
-            if (err) throw err;
-            var data = JSON.parse(content);
-            return checkToken(data, next);
+        if (err && err.code === "ENOENT") {
+            console.error("No token file " + config.tokenFile);
+            return getKey(next);
         }
-        catch (e) {
-            return getKey(next);    
+
+        if (err) {
+            console.log("Failed to read " + config.tokenFile);
+            return getKey(next);
         }
+
+        var data = JSON.parse(content);
+        return checkToken(data, next);
     });
 }
 
 function checkToken(tokenData, next) {
-    api.checkToken(tokenData, function(err, data) {
+    api.fetchToken(tokenData, function(err, data) {
         if (err) return next(err);
         if (data.valid) return next(null, tokenData);
         if (data.refreshable) return refreshToken(tokenData, next);
@@ -35,22 +43,19 @@ function refreshToken(tokenData, next) {
 }
 
 function getKey(next) {
-    fs.readFile(config.tokenFile, 'utf8', (err, content) => {
-        try {
-            if (err) throw err;
-            var data = JSON.parse(content);
-            return login(data, next);
-        }
-        catch (e) {
+    fs.readFile(config.keyFile, 'utf8', (err, content) => {
+        if (err && err.code === "ENOENT") {
+            console.error("No key file " + config.keyFile);
             return askCredentials(next);
         }
-    });
-}
 
-function login(creds, next) {
-    api.getToken(creds, function(err, data) {
-        if (err) return askCredentials(next);
-        return next(data);
+        if (err) {
+            console.log("Failed to read " + config.keyFile);
+            return askCredentials(next);
+        }
+
+        var data = JSON.parse(content);
+        return login('file', data, next);
     });
 }
 
@@ -63,11 +68,26 @@ function askCredentials(next) {
     inquirer.prompt(questions)
         .then(function (answers) {
             var credentials = { username: answers.username, password: answers.password };
-            return login(credentials, next);
+            return login('prompt', credentials, next);
         })
         .catch(function (err) {
             return next(err);
         });
+}
+
+function login(mode, creds, next) {
+    api.createToken(creds, function(err, data) {
+        if (err && mode == 'file') return askCredentials(next);
+        if (err && mode == 'prompt') return next(err);
+        return saveToken(data, next);
+    });
+}
+
+function saveToken(data, next) {
+    fs.writeFile(config.tokenFile, JSON.stringify(data), { mode: 0o600 }, function (err) {
+        if (err) return next(err);
+        return next(null);
+    });
 }
 
 module.exports = authenticate;

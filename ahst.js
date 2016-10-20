@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+// I should have done this in python
+
 var program = require('commander');
 var info = require('./package.json');
 var main = require('./main.js');

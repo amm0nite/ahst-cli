@@ -1,3 +1,4 @@
+
 function checkPath(next) {
     fs.mkdir(config.dataDir, 0o700, function(err) {
         if (err && err.code === "EEXIST") {
@@ -11,3 +12,7 @@ function checkPath(next) {
         return next(null);
     });
 }
+
+module.exports = {
+    'checkPath': checkPath,
+};

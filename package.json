@@ -17,7 +17,6 @@
   },
   "homepage": "https://github.com/amm0nite/ahst-cli#readme",
   "dependencies": {
-    "async": "^2.1.2",
     "commander": "^2.9.0",
     "inquirer": "^1.2.1",
     "moment": "^2.15.1",

@@ -1,6 +1,7 @@
 
 var fs = require('fs');
 var inquirer = require('inquirer');
+var moment = require('moment');
 
 var config = require('./config.js');
 var api = require('./api.js');
@@ -27,18 +28,30 @@ function getStoredToken(next) {
 }
 
 function checkToken(tokenData, next) {
-    api.fetchToken(tokenData, function(err, data) {
-        if (err) return next(err);
-        if (data.valid) return next(null, tokenData);
-        if (data.refreshable) return refreshToken(tokenData, next);
+    if (!tokenData.token || !tokenData.refreshToken) {
         return getKey(next);
-    });
+    }
+
+    var expireAt = moment(tokenData.expireAt);
+    var validLimit = expireAt.add(1, 'hours');
+    var refreshLimit = expireAt.add(1, 'hours');
+    var now = moment();
+
+    if (now < expireAt) {
+        return success(tokenData, next);
+    }
+    
+    if (now < refreshLimit) {
+        return refreshToken(tokenData, next);
+    }
+
+    return getKey(next);
 }
 
 function refreshToken(tokenData, next) {
     api.refreshToken(tokenData, function(err, data) {
         if (err) return getKey(next);
-        return next(null, data);
+        return success(data, next);
     });
 }
 
@@ -86,8 +99,13 @@ function login(mode, creds, next) {
 function saveToken(data, next) {
     fs.writeFile(config.tokenFile, JSON.stringify(data), { mode: 0o600 }, function (err) {
         if (err) return next(err);
-        return next(null);
+        return success(data, next);
     });
+}
+
+function success(tokenData, next) {
+    api.setToken(tokenData.token);
+    return next(null);
 }
 
 module.exports = authenticate;

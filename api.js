@@ -10,6 +10,8 @@ function setToken(token) {
 }
 
 function createToken(credentials, next) {
+    console.log('/access');
+
     request({
         baseUrl: config.baseUrl,
         uri: '/access',
@@ -24,11 +26,13 @@ function createToken(credentials, next) {
             return next(data);
         }
         
-        next(null, data.token);
+        next(null, data);
     });
 }
 
 function action(uri, data, next) {
+    console.log(uri);
+    
     var options = {
         baseUrl: config.baseUrl,
         headers: { 'Authorization': 'Bearer ' + _token },
@@ -71,15 +75,10 @@ function fetchUser(next) {
     action('/user', null, next);
 }
 
-function fetchToken(next) {
-    throw "todo";
-}
-
 module.exports = {
     'setToken': setToken,
     'createToken': createToken,
     'createJob': createJob,
     'createKey': createKey,
     'fetchUser': fetchUser,
-    'fetchToken': fetchToken,
 };

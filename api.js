@@ -2,18 +2,21 @@
 var request = require('request');
 var config = require('./config.js');
 
-var _credentials = {};
 
-function setCredentials(credentials) {
-    _credentials = credentials;
+var _token = '';
+
+function setToken(token) {
+    _token = token;
 }
 
-function authenticate(next) {
+function createToken(credentials, next) {
+    console.log('/access');
+
     request({
         baseUrl: config.baseUrl,
         uri: '/access',
         method: 'POST',
-        json: _credentials
+        json: credentials
     }, function (err, res) {
         if (err) return next(err);
 
@@ -23,41 +26,39 @@ function authenticate(next) {
             return next(data);
         }
         
-        next(null, data.token);
+        next(null, data);
     });
 }
 
 function action(uri, data, next) {
-    authenticate(function (err, token) {
+    console.log(uri);
+    
+    var options = {
+        baseUrl: config.baseUrl,
+        headers: { 'Authorization': 'Bearer ' + _token },
+        uri: uri,
+        method: 'GET'
+    };
+
+    if (data) {
+        options.method = 'POST';
+        options.json = data;
+    }
+
+    request(options, function (err, res) {
         if (err) return next(err);
+        if (res.statusCode != 200) return next(res.body);
 
-        var options = {
-            baseUrl: config.baseUrl,
-            headers: { 'Authorization': 'Bearer ' + token },
-            uri: uri,
-            method: 'GET'
-        };
-
-        if (data) {
-            options.method = 'POST';
-            options.json = data;
+        var result = res.body;
+        if (!data) {
+            result = JSON.parse(res.body);
         }
 
-        request(options, function (err, res) {
-            if (err) return next(err);
-            if (res.statusCode != 200) return next(res.body);
-
-            var result = res.body;
-            if (!data) {
-                result = JSON.parse(res.body);
-            }
-
-            next(null, result);
-        });
+        next(null, result);
     });
 }
 
-function postJob(name, code, next) {
+function createJob(name, code, next) {
     var job = {
         name: name,
         code: code,
@@ -66,12 +67,18 @@ function postJob(name, code, next) {
     action('/job', job, next);
 }
 
-function postKey(next) {
+function createKey(next) {
     action('/robotKey', null, next);
 }
 
+function fetchUser(next) {
+    action('/user', null, next);
+}
+
 module.exports = {
-    'setCredentials': setCredentials,
-    'createJob': postJob,
-    'createKey': postKey,
+    'setToken': setToken,
+    'createToken': createToken,
+    'createJob': createJob,
+    'createKey': createKey,
+    'fetchUser': fetchUser,
 };

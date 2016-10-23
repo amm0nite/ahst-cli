@@ -33,15 +33,14 @@ function checkToken(tokenData, next) {
     }
 
     var expireAt = moment(tokenData.expireAt);
-    var validLimit = expireAt.add(1, 'hours');
-    var refreshLimit = expireAt.add(1, 'hours');
+    var refreshLimit = moment(expireAt).add(1, 'hours');
     var now = moment();
 
-    if (now < expireAt) {
+    if (now.isBefore(expireAt)) {
         return success(tokenData, next);
     }
     
-    if (now < refreshLimit) {
+    if (now.isBefore(refreshLimit)) {
         return refreshToken(tokenData, next);
     }
 
@@ -49,7 +48,8 @@ function checkToken(tokenData, next) {
 }
 
 function refreshToken(tokenData, next) {
-    api.refreshToken(tokenData, function(err, data) {
+    api.setToken(tokenData.token);
+    api.refreshToken(function(err, data) {
         if (err) return getKey(next);
         return success(data, next);
     });

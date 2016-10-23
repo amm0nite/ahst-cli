@@ -58,13 +58,8 @@ function action(uri, data, next) {
     });
 }
 
-function createJob(name, code, next) {
-    var job = {
-        name: name,
-        code: code,
-        launch: true
-    };
-    action('/job', job, next);
+function refreshToken(next) {
+    action('/refresh', null, next);
 }
 
 function createKey(next) {
@@ -75,9 +70,19 @@ function fetchUser(next) {
     action('/user', null, next);
 }
 
+function createJob(name, code, next) {
+    var job = {
+        name: name,
+        code: code,
+        launch: true
+    };
+    action('/job', job, next);
+}
+
 module.exports = {
     'setToken': setToken,
     'createToken': createToken,
+    'refreshToken': refreshToken,
     'createJob': createJob,
     'createKey': createKey,
     'fetchUser': fetchUser,

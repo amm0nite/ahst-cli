@@ -62,8 +62,8 @@ function refreshToken(next) {
     action('/refresh', null, next);
 }
 
-function createKey(next) {
-    action('/robotKey', null, next);
+function createApiToken(description, next) {
+    action('/apiToken', { 'description': description }, next);
 }
 
 function fetchUser(next) {
@@ -84,6 +84,6 @@ module.exports = {
     'createToken': createToken,
     'refreshToken': refreshToken,
     'createJob': createJob,
-    'createKey': createKey,
+    'createApiToken': createApiToken,
     'fetchUser': fetchUser,
 };

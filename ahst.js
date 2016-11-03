@@ -21,13 +21,13 @@ program.command('run <filename>')
     });
 
 program.command('generate')
-    .description('Create automation key file')
+    .description('Create API token file')
     .action(function () {
         action = 'generate';
     });
 
 program.command('forget')
-    .description('Delete automation key file')
+    .description('Delete API token file')
     .action(function() {
         action = 'forget';
     });

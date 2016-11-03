@@ -11,14 +11,15 @@ function generate(params, next) {
 function getUser(next) {
    api.fetchUser(function(err, user) {
        if (err) return next(err);
-       return createKey(user, next);
+       return createToken(user, next);
    });
 }
 
-function createKey(user, next) {
-    api.createKey(function (err, result) {
+function createToken(user, next) {
+    var description = 'cli ' + (new Date()).toString();
+    api.createApiToken(description, function (err, result) {
         if (err) return next(err);
-        var data = { username: user.username, key: result.key };
+        var data = { username: user.email, token: result.token };
         return checkPath(data, next);
     });
 }
@@ -31,9 +32,9 @@ function checkPath(data, next) {
 }
 
 function writeFile(data, next) {
-    fs.writeFile(config.keyFile, JSON.stringify(data), { mode: 0o600 }, function (err) {
+    fs.writeFile(config.apiTokenFile, JSON.stringify(data), { mode: 0o600 }, function (err) {
         if (err) return next(err);
-        console.log('Automation key saved to ' + config.keyFile);
+        console.log('API token saved to ' + config.apiTokenFile);
         return next(null);
     });
 }

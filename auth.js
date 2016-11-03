@@ -56,14 +56,14 @@ function refreshToken(tokenData, next) {
 }
 
 function getKey(next) {
-    fs.readFile(config.keyFile, 'utf8', (err, content) => {
+    fs.readFile(config.apiTokenFile, 'utf8', (err, content) => {
         if (err && err.code === "ENOENT") {
-            console.error("No key file " + config.keyFile);
+            console.error("No API token file " + config.apiTokenFile);
             return askCredentials(next);
         }
 
         if (err) {
-            console.log("Failed to read " + config.keyFile);
+            console.log("Failed to read " + config.apiTokenFile);
             return askCredentials(next);
         }
 

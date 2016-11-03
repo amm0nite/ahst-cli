@@ -15,7 +15,7 @@ function checkPath(next) {
 }
 
 function unlink(next) {
-    fs.unlink(config.keyFile, function(err) {
+    fs.unlink(config.apiTokenFile, function(err) {
         if (err && err.code === "ENOENT") {
             return next(null);
         }

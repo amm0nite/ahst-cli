@@ -2,7 +2,7 @@
   "name": "ahst-cli",
   "version": "1.0.0",
   "description": "Command line interface for Ammonite Hosting",
-  "main": "ahst.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -23,6 +23,6 @@
     "request": "^2.75.0"
   },
   "bin": {
-    "ahst": "./ahst.js"
+    "ahst": "./index.js"
   }
 }

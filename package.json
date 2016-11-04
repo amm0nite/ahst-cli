@@ -18,6 +18,7 @@
   "homepage": "https://github.com/amm0nite/ahst-cli#readme",
   "dependencies": {
     "commander": "^2.9.0",
+    "eventsource": "^0.2.1",
     "inquirer": "^1.2.1",
     "moment": "^2.15.1",
     "request": "^2.75.0"

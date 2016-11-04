@@ -2,7 +2,10 @@
 var fs = require('fs');
 var api = require('../api.js');
 
+var _detach = false;
+
 function run(params, next) {
+    _detach = params.detach
     readFile(params.filename, next);
 }
 
@@ -16,9 +19,20 @@ function readFile(filename, next) {
 function createJob(title, code, next) {
     api.createJob(title, code, function (err, job) {
         if (err) return next(err);
-        console.log('[' + job.id + ']');
-        return next(null);
+
+        if (_detach) {
+            console.log('[' + job.id + ']');
+            return next(null);
+        }
+
+        return followJob(job, next);
     });
 }
+
+function followJob(job, next) {
+    api.followJob(job.id, function(report) {
+        console.log(report.stdout);
+    });
+};
 
 module.exports = run;

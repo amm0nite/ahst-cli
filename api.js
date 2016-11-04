@@ -1,5 +1,7 @@
 
 var request = require('request');
+var EventSource = require('eventsource');
+
 var config = require('./config.js');
 
 
@@ -79,11 +81,31 @@ function createJob(name, code, next) {
     action('/job', job, next);
 }
 
+function followJob(id, callback) {
+    var init = { headers: { 'Authorization': 'Bearer ' + _token }};
+    var source = new EventSource(config.baseUrl + '/events', init);
+
+    source.onmessage = function(event) {
+        var data = JSON.parse(event.data);
+        if (data.type && data.type == 'report') {
+            var report = data.data;
+            callback(data.data);
+
+            if (report.status == 'down') source.close();
+        }
+    };
+    source.onerror = function(err) {
+        console.log('error!');
+        source.close();
+    };
+}
+
 module.exports = {
     'setToken': setToken,
     'createToken': createToken,
     'refreshToken': refreshToken,
-    'createJob': createJob,
     'createApiToken': createApiToken,
+    'createJob': createJob,
+    'followJob': followJob,
     'fetchUser': fetchUser,
 };

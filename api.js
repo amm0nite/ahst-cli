@@ -12,8 +12,6 @@ function setToken(token) {
 }
 
 function createToken(credentials, next) {
-    console.log('/access');
-
     request({
         baseUrl: config.baseUrl,
         uri: '/access',
@@ -33,8 +31,6 @@ function createToken(credentials, next) {
 }
 
 function action(uri, data, next) {
-    console.log(uri);
-    
     var options = {
         baseUrl: config.baseUrl,
         headers: { 'Authorization': 'Bearer ' + _token },
@@ -81,7 +77,7 @@ function createJob(name, code, next) {
     action('/job', job, next);
 }
 
-function followJob(id, callback) {
+function followJob(id, callback, next) {
     var init = { headers: { 'Authorization': 'Bearer ' + _token }};
     var source = new EventSource(config.baseUrl + '/events', init);
 
@@ -91,12 +87,15 @@ function followJob(id, callback) {
             var report = data.data;
             callback(data.data);
 
-            if (report.status == 'down') source.close();
+            if (report.status == 'down') {
+                source.close();
+                return next(null);
+            }
         }
     };
     source.onerror = function(err) {
-        console.log('error!');
         source.close();
+        return next(err);
     };
 }
 

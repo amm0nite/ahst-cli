@@ -3,6 +3,7 @@ var fs = require('fs');
 var api = require('../api.js');
 
 var _detach = false;
+var _debug = true;
 
 function run(params, next) {
     _detach = params.detach
@@ -30,8 +31,23 @@ function createJob(title, code, next) {
 }
 
 function followJob(job, next) {
-    api.followJob(job.id, function(report) {
-        console.log(report.stdout);
+    var totalTime = 0;
+    var callback = function(report) {
+        if (report.processingTime) {
+            totalTime += report.processingTime;
+        }
+        if (_debug) {
+            console.log('-');
+            console.log(report);
+            console.log('-');
+        }
+        if (report.stdout) {
+            console.log(report.stdout);
+        }
+    };
+    api.followJob(job.id, callback, function(err) {
+        if (err) return next(err);
+        console.log('[done in ' + totalTime + 'ms]');
     });
 };
 

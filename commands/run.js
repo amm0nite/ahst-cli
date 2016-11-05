@@ -48,6 +48,7 @@ function followJob(job, next) {
     api.followJob(job.id, callback, function(err) {
         if (err) return next(err);
         console.log('[done in ' + totalTime + 'ms]');
+        return next(null);
     });
 };
 

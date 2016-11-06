@@ -78,8 +78,9 @@ function createJob(name, code, next) {
 }
 
 function followJob(id, callback, next) {
+    var endpoint = config.baseUrl + '/job/'  + id + '/reports';
     var init = { headers: { 'Authorization': 'Bearer ' + _token }};
-    var source = new EventSource(config.baseUrl + '/events', init);
+    var source = new EventSource(endpoint, init);
 
     source.onmessage = function(event) {
         var data = JSON.parse(event.data);

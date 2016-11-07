@@ -68,6 +68,14 @@ function fetchUser(next) {
     action('/user', null, next);
 }
 
+function fetchJobs(next) {
+    action('/jobs', null, next);
+}
+
+function fetchJob(id, next) {
+    action('/job/' + id, null, next);
+}
+
 function createJob(name, code, next) {
     var job = {
         name: name,
@@ -108,4 +116,6 @@ module.exports = {
     'createJob': createJob,
     'followJob': followJob,
     'fetchUser': fetchUser,
+    'fetchJobs': fetchJobs,
+    'fetchJob': fetchJob,
 };

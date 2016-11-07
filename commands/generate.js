@@ -1,8 +1,8 @@
 
 var fs = require('fs');
-var api = require('../api.js');
-var disk = require('../disk.js');
-var config = require('../config.js');
+var api = require('../include/api.js');
+var disk = require('../include/disk.js');
+var config = require('../include/config.js');
 
 function generate(params, next) {
     getUser(next);

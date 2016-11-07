@@ -1,6 +1,7 @@
 
 var fs = require('fs');
-var api = require('../api.js');
+var api = require('../include/api.js');
+var follower = require('../include/follower.js');
 
 var _detach = false;
 var _debug = true;
@@ -31,23 +32,9 @@ function createJob(title, code, next) {
 }
 
 function followJob(job, next) {
-    var totalTime = 0;
-    var callback = function(report) {
-        if (report.processingTime) {
-            totalTime += report.processingTime;
-        }
-        if (_debug) {
-            console.log('-');
-            console.log(report);
-            console.log('-');
-        }
-        if (report.stdout) {
-            console.log(report.stdout);
-        }
-    };
+    var callback = follower.makeCallback();
     api.followJob(job.id, callback, function(err) {
         if (err) return next(err);
-        console.log('[done in ' + totalTime + 'ms]');
         return next(null);
     });
 };

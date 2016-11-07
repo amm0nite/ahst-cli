@@ -18,15 +18,32 @@ program.command('run <filename>')
         action = 'run';
         params.filename = filename;
         params.detach = options.detach;
+        params.authRequired = true;
     });
 
-program.command('generate')
+program.command('resume <id>')
+    .description("Follow execution of a running script")
+    .action(function(id) {
+        action = 'resume';
+        params.id = id;
+        params.authRequired = true;
+    });
+
+program.command('ls')
+    .description('List running jobs')
+    .action(function() {
+        action = 'list';
+        params.authRequired = true;
+    });
+
+program.command('setup')
     .description('Create API token file')
     .action(function () {
         action = 'generate';
+        params.authRequired = true;
     });
 
-program.command('forget')
+program.command('reset')
     .description('Delete API token file')
     .action(function() {
         action = 'forget';

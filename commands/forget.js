@@ -1,7 +1,7 @@
 
 var fs = require('fs');
-var disk = require('../disk.js');
-var config = require('../config.js');
+var disk = require('../include/disk.js');
+var config = require('../include/config.js');
 
 function forget(params, next) {
     checkPath(next);

@@ -1,6 +1,7 @@
 
 var request = require('request');
 var EventSource = require('eventsource');
+var querystring = require('querystring');
 
 var config = require('./config.js');
 
@@ -68,8 +69,12 @@ function fetchUser(next) {
     action('/user', null, next);
 }
 
-function fetchJobs(next) {
-    action('/jobs', null, next);
+function fetchJobs(options, next) {
+    var resource = '/jobs';
+    if (options) {
+        resource += '?' + querystring.stringify(options);
+    }
+    action(resource, null, next);
 }
 
 function fetchJob(id, next) {

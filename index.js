@@ -31,8 +31,10 @@ program.command('resume <id>')
 
 program.command('ls')
     .description('List running jobs')
-    .action(function() {
+    .option("-j, --json", "Outputs JSON fromatted data")
+    .action(function(options) {
         action = 'list';
+        params.json = options.json;
         params.authRequired = true;
     });
 
@@ -56,4 +58,3 @@ if (action == 'none') {
 }
 
 main(action, params);
-

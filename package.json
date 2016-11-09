@@ -21,7 +21,8 @@
     "eventsource": "^0.2.1",
     "inquirer": "^1.2.1",
     "moment": "^2.15.1",
-    "request": "^2.75.0"
+    "request": "^2.75.0",
+    "tty-table": "^2.2.2"
   },
   "bin": {
     "ahst": "./index.js"
